@@ -7,6 +7,8 @@
 // imports necessary libraries for Java swing
 import java.awt.*;
 import java.awt.event.*;
+import java.io.IOException;
+
 import javax.swing.*;
 
 /** 
@@ -45,7 +47,12 @@ public class Game implements Runnable {
         final JButton reset = new JButton("Reset");
         reset.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
-                    court.reset();
+                    try {
+						court.reset();
+					} catch (IOException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
                 }
             });
         control_panel.add(reset);
@@ -56,7 +63,12 @@ public class Game implements Runnable {
         frame.setVisible(true);
 
         // Start game
-        court.reset();
+        try {
+			court.reset();
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
     }
 
     /*

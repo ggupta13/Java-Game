@@ -6,8 +6,13 @@
 
 import java.awt.*;
 import java.awt.event.*;
+import java.io.File;
+import java.io.IOException;
+
 import javax.swing.*;
 import java.util.ArrayList;
+import java.util.Random;
+import java.util.Scanner;
 
 /**
  * GameCourt
@@ -26,18 +31,21 @@ public class GameCourt extends JPanel {
 	private Circle snitch;          // the Golden Snitch, bounces
 	private Poison poison;   
 	private Balloon b;// the Poison Mushroom, doesn't move
+	private Balloon[][] balloons;
+	private Arrow a;
 	
 	public boolean playing = false;  // whether the game is running
 	private JLabel status;       // Current status text (i.e. Running...)
 
 	// Game constants
-	public static final int COURT_WIDTH = 300;
+	public static final int COURT_WIDTH = 600;
 	public static final int COURT_HEIGHT = 300;
 	public static final int SQUARE_VELOCITY = 4;
 	// Update interval for timer in milliseconds 
 	public static final int INTERVAL = 35; 
 
-	public GameCourt(JLabel status){
+	public GameCourt(JLabel status)
+	{
 		// creates border around the court area, JComponent method
 		setBorder(BorderFactory.createLineBorder(Color.BLACK));
         
@@ -85,12 +93,52 @@ public class GameCourt extends JPanel {
 
 	/** (Re-)set the state of the game to its initial state.
 	 */
-	public void reset() {
+	public void reset() throws IOException {
 
 		square = new Square(COURT_WIDTH, COURT_HEIGHT);
 		poison = new Poison(COURT_WIDTH, COURT_HEIGHT);
 		snitch = new Circle(COURT_WIDTH, COURT_HEIGHT);
-		b = new Balloon(COURT_WIDTH, COURT_HEIGHT,"black");
+		a = new Arrow(COURT_WIDTH, COURT_HEIGHT,30,250);
+		
+		Scanner scan = new Scanner(new File("grid.txt"));
+		int maxX = 0, maxY = 0;
+		while(scan.hasNextLine())
+		{
+			String line = scan.nextLine();
+			if(line.length()>maxX)
+				maxX = line.length();
+			maxY++;			
+		}
+		balloons = new Balloon[maxY][maxX];
+		
+		scan = new Scanner(new File("grid.txt"));
+		int i=0, currX = 350, currY = 20;
+		Random rand = new Random();
+		while(scan.hasNextLine())
+		{
+			char[] row = scan.nextLine().toCharArray();
+			for(int j=0;j<row.length;j++)
+			{
+				if(Character.isLetter(row[j]))
+				{
+					int randomNum = rand.nextInt((3 - 1) + 1) + 1;
+					System.out.println(randomNum);
+					if(randomNum == 1)
+						balloons[i][j] = new Balloon(COURT_WIDTH, COURT_HEIGHT,"black",currX,currY);
+					else if(randomNum == 2)
+						balloons[i][j] = new Balloon(COURT_WIDTH, COURT_HEIGHT,"red",currX,currY);
+					else if(randomNum == 3)
+						balloons[i][j] = new Balloon(COURT_WIDTH, COURT_HEIGHT,"blue",currX,currY);
+					
+				}
+				currX += 30;
+			}
+			currY += 212/5;
+			currX = 350;
+			i++;
+		}
+		
+		//b = new Balloon(COURT_WIDTH, COURT_HEIGHT,"black");
 
 		playing = true;
 		status.setText("Running...");
@@ -133,11 +181,39 @@ public class GameCourt extends JPanel {
 	@Override 
 	public void paintComponent(Graphics g){
 		super.paintComponent(g);
-		square.draw(g);
-		poison.draw(g);
-		snitch.draw(g);
-		b.draw(g);
+		//square.draw(g);
+		//poison.draw(g);
+		//snitch.draw(g);
+		
+		JFrame frame = (JFrame)SwingUtilities.getRoot(this);
+		Rectangle r = frame.getBounds();
+		
+		PointerInfo pos = MouseInfo.getPointerInfo();
+		Point p = pos.getLocation();
+		
+		a.mouseX = p.x; 
+		a.mouseY = p.y;
+		
+		
+		a.draw(g);
+		
+		if(balloons != null) 
+		{
+			for(int i=0;i<balloons.length;i++)
+			{
+				for(int j=0;j<balloons[0].length;j++)
+				{
+					if(balloons[i][j] != null)
+					{
+						balloons[i][j].draw(g);
+					}
+				}
+			}
+		}
+		
 	}
+	
+	
 
 	@Override
 	public Dimension getPreferredSize(){

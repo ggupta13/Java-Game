@@ -2,6 +2,8 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.Random;
+
 import javax.imageio.ImageIO;
 
 public class Balloon extends GameObj
@@ -12,11 +14,17 @@ public class Balloon extends GameObj
 	public static final int INIT_Y = 170;
 	public static final int INIT_VEL_X = 0;
 	public static final int INIT_VEL_Y = 0;
+	public static String color;
 	
-	public Balloon(int courtWidth, int courtHeight, String color) {
-		super(INIT_VEL_X, INIT_VEL_Y, INIT_X, INIT_Y, 
+	public Balloon(int courtWidth, int courtHeight, String color, int x, int y) 
+	{
+		super(INIT_VEL_X, INIT_VEL_Y, x, y, 
 				30, 212/5, courtWidth, courtHeight);
-		try {
+		
+		this.color = color;
+		
+		try 
+		{
 			if (img == null) 
 			{
 				if(color.equals("black"))
@@ -31,8 +39,12 @@ public class Balloon extends GameObj
 		}
 	}
 	
+	
+	
 	@Override
-	public void draw(Graphics g){
+	public void draw(Graphics g)
+	{
+		
 		 g.drawImage(img, pos_x, pos_y, width, height, null); 
 	}
 }
